@@ -9,7 +9,7 @@
 
   body {
     @apply font-sans antialiased text-foreground;
-    background-image: url('/cage-pattern.svg');
+    background-image: url('./public/cage-pattern.svg');
     background-color: hsl(var(--background));
     background-size: cover;
     background-attachment: fixed;
