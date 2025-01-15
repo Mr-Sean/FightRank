@@ -164,7 +164,7 @@ export default function Fights() {
   ) ?? [];
 
   return (
-    <div className="min-h-screen bg-background py-8">
+    <div className="min-h-screen py-8">
       <div className="container mx-auto px-4">
         <div className="mb-8 flex justify-between items-center">
           <h1 className="text-3xl font-bold mb-4">MMA Fights</h1>
@@ -185,7 +185,7 @@ export default function Fights() {
           {filteredFights.map((fight: any) => (
             <Card
               key={fight.id}
-              className={`bg-card/50 backdrop-blur transition-all duration-200 ${
+              className={`bg-card/30 backdrop-blur transition-all duration-200 ${
                 selectedFight === fight.id ? "ring-2 ring-primary" : ""
               }`}
               onClick={() => setSelectedFight(fight.id)}
