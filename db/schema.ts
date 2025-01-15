@@ -14,6 +14,7 @@ export const fights = pgTable("fights", {
   title: text("title").notNull(),
   fighter1: text("fighter1").notNull(),
   fighter2: text("fighter2").notNull(),
+  promotion: text("promotion").notNull().default("UFC"),
   date: timestamp("date").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });

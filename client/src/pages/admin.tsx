@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/hooks/use-user";
 import { useQueryClient } from "@tanstack/react-query";
@@ -15,7 +16,8 @@ export default function Admin() {
     title: "",
     fighter1: "",
     fighter2: "",
-    date: ""
+    date: "",
+    promotion: "UFC"
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,7 +33,7 @@ export default function Admin() {
       
       toast({ title: "Success", description: "Fight created successfully!" });
       queryClient.invalidateQueries({ queryKey: ["/api/fights"] });
-      setFight({ title: "", fighter1: "", fighter2: "", date: "" });
+      setFight({ title: "", fighter1: "", fighter2: "", date: "", promotion: "UFC" });
     } catch (error: any) {
       toast({ 
         title: "Error", 
@@ -57,6 +59,20 @@ export default function Admin() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <Select
+              value={fight.promotion}
+              onValueChange={(value) => setFight({ ...fight, promotion: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select promotion" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="UFC">UFC</SelectItem>
+                <SelectItem value="PFL">PFL</SelectItem>
+                <SelectItem value="Rizin">Rizin</SelectItem>
+                <SelectItem value="One FC">One FC</SelectItem>
+              </SelectContent>
+            </Select>
             <Input
               placeholder="Fight Title"
               value={fight.title}
