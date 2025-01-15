@@ -54,6 +54,7 @@ export function registerRoutes(app: Express): Server {
           title: fights.title,
           fighter1: fights.fighter1,
           fighter2: fights.fighter2,
+          promotion: fights.promotion,
           date: fights.date,
           averageRating: sql<number>`COALESCE(AVG(${ratings.rating}), 0)`,
           userRating: sql<number | null>`
@@ -65,7 +66,7 @@ export function registerRoutes(app: Express): Server {
         })
         .from(fights)
         .leftJoin(ratings, eq(fights.id, ratings.fightId))
-        .groupBy(fights.id)
+        .groupBy(fights.id, fights.title, fights.fighter1, fights.fighter2, fights.promotion, fights.date)
         .orderBy(desc(fights.date));
 
       res.json(fightsWithRatings);
