@@ -165,11 +165,9 @@ export default function Fights() {
 
   return (
     <div 
-      className="min-h-screen relative"
+      className="min-h-screen relative bg-cover bg-center"
       style={{
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1552072092-7f9b8d63efcb'), url('/cage-pattern.svg')`,
-        backgroundSize: 'cover, cover, 20px 20px',
-        backgroundPosition: 'center',
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1552072092-7f9b8d63efcb'), url('/cage-pattern.svg')`
       }}
     >
       <div className="relative py-8">
