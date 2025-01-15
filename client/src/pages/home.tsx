@@ -14,7 +14,7 @@ export default function Home() {
     <div 
       className="min-h-screen flex items-center justify-center bg-cover bg-center p-4"
       style={{
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1552072092-7f9b8d63efcb')`
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1552072092-7f9b8d63efcb'), url('/cage-pattern.svg')`
       }}
     >
       <div className="text-center">
