@@ -7,6 +7,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Fights from "@/pages/fights";
 import AuthPage from "@/pages/auth-page";
+import Admin from "@/pages/admin"; // Added import for Admin component
 import { useUser } from "@/hooks/use-user";
 import { Loader2 } from "lucide-react";
 
