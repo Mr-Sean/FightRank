@@ -123,8 +123,13 @@ export default function Fights() {
   return (
     <div className="min-h-screen bg-background py-8">
       <div className="container mx-auto px-4">
-        <div className="mb-8">
+        <div className="mb-8 flex justify-between items-center">
           <h1 className="text-3xl font-bold mb-4">MMA Fights</h1>
+          {user && (
+            <Button onClick={() => window.location.href = '/admin'} variant="outline">
+              Add New Fight
+            </Button>
+          )}
           <Input
             placeholder="Search fights..."
             value={search}
