@@ -74,7 +74,7 @@ export default function Admin() {
               </SelectContent>
             </Select>
             <Input
-              placeholder="Fight Title"
+              placeholder="Event Title"
               value={fight.title}
               onChange={e => setFight({ ...fight, title: e.target.value })}
             />
