@@ -1,0 +1,2 @@
+
+ALTER TABLE fights ADD COLUMN promotion TEXT NOT NULL DEFAULT 'UFC';
