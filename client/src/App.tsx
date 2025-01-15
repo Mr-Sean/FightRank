@@ -26,6 +26,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/fights" component={Fights} />
       <Route path="/auth" component={AuthPage} />
+      <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
     </Switch>
   );

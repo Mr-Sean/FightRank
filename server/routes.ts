@@ -23,6 +23,25 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Fights routes
+  app.post("/api/fights", isAuthenticated, async (req, res) => {
+    try {
+      const { title, fighter1, fighter2, date } = req.body;
+      const [newFight] = await db
+        .insert(fights)
+        .values({
+          title,
+          fighter1,
+          fighter2,
+          date: new Date(date),
+        })
+        .returning();
+      res.json(newFight);
+    } catch (error) {
+      console.error("Failed to create fight:", error);
+      res.status(500).send("Failed to create fight");
+    }
+  });
+
   app.get("/api/fights", async (req, res) => {
     try {
       const userId = req.user?.id;
