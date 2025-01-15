@@ -58,10 +58,10 @@ export function registerRoutes(app: Express): Server {
           date: fights.date,
           averageRating: sql<number>`COALESCE(AVG(${ratings.rating}), 0)`,
           userRating: sql<number | null>`
-            CASE 
+            MAX(CASE 
               WHEN ${ratings.userId} = ${userId} THEN ${ratings.rating}
               ELSE NULL 
-            END
+            END)
           `,
         })
         .from(fights)
