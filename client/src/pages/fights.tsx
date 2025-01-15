@@ -167,7 +167,7 @@ export default function Fights() {
     <div 
       className="min-h-screen relative"
       style={{
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1605900009312-d3ef74f58445')`,
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1638771105709-275dadc3ddc3')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
