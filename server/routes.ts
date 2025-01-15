@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { db } from "@db";
 import { setupAuth } from "./auth";
 import { eq, and, desc, sql } from "drizzle-orm";
-import { fights, ratings } from "@db/schema";
+import { fights, ratings, comments, users } from "@db/schema";
 
 // Middleware to check if user is authenticated
 const isAuthenticated = (req: Request, res: Response, next: Function) => {
@@ -52,6 +52,52 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Failed to fetch fights:", error);
       res.status(500).send("Failed to fetch fights");
+    }
+  });
+
+  // Get comments for a specific fight
+  app.get("/api/fights/:id/comments", async (req, res) => {
+    try {
+      const fightId = parseInt(req.params.id);
+      const fightComments = await db
+        .select({
+          id: comments.id,
+          content: comments.content,
+          createdAt: comments.createdAt,
+          userId: comments.userId,
+          username: users.username,
+        })
+        .from(comments)
+        .leftJoin(users, eq(comments.userId, users.id))
+        .where(eq(comments.fightId, fightId))
+        .orderBy(desc(comments.createdAt));
+
+      res.json(fightComments);
+    } catch (error) {
+      console.error("Failed to fetch comments:", error);
+      res.status(500).send("Failed to fetch comments");
+    }
+  });
+
+  // Create a new comment
+  app.post("/api/comments", isAuthenticated, async (req, res) => {
+    try {
+      const { fightId, content } = req.body;
+      const userId = req.user!.id;
+
+      const [newComment] = await db
+        .insert(comments)
+        .values({
+          userId,
+          fightId,
+          content,
+        })
+        .returning();
+
+      res.json(newComment);
+    } catch (error) {
+      console.error("Failed to create comment:", error);
+      res.status(500).send("Failed to create comment");
     }
   });
 

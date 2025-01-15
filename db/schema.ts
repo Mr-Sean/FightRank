@@ -28,8 +28,17 @@ export const ratings = pgTable("ratings", {
   userFightUnique: unique().on(table.userId, table.fightId),
 }));
 
+export const comments = pgTable("comments", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  fightId: integer("fight_id").references(() => fights.id).notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const fightsRelations = relations(fights, ({ many }) => ({
   ratings: many(ratings),
+  comments: many(comments),
 }));
 
 export const ratingsRelations = relations(ratings, ({ one }) => ({
@@ -43,8 +52,24 @@ export const ratingsRelations = relations(ratings, ({ one }) => ({
   }),
 }));
 
+export const commentsRelations = relations(comments, ({ one }) => ({
+  user: one(users, {
+    fields: [comments.userId],
+    references: [users.id],
+  }),
+  fight: one(fights, {
+    fields: [comments.fightId],
+    references: [fights.id],
+  }),
+}));
+
 // Schema types
 export const insertUserSchema = createInsertSchema(users);
 export const selectUserSchema = createSelectSchema(users);
 export type InsertUser = typeof users.$inferInsert;
 export type SelectUser = typeof users.$inferSelect;
+
+export const insertCommentSchema = createInsertSchema(comments);
+export const selectCommentSchema = createSelectSchema(comments);
+export type InsertComment = typeof comments.$inferInsert;
+export type SelectComment = typeof comments.$inferSelect;
