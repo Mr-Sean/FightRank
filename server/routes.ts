@@ -23,6 +23,30 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Fights routes
+  app.put("/api/fights/:id", isAuthenticated, async (req, res) => {
+    try {
+      const { title, fighter1, fighter2, date, promotion } = req.body;
+      const fightId = parseInt(req.params.id);
+      
+      const [updatedFight] = await db
+        .update(fights)
+        .set({
+          title,
+          fighter1,
+          fighter2,
+          date: new Date(date),
+          promotion,
+        })
+        .where(eq(fights.id, fightId))
+        .returning();
+      
+      res.json(updatedFight);
+    } catch (error) {
+      console.error("Failed to update fight:", error);
+      res.status(500).send("Failed to update fight");
+    }
+  });
+
   app.post("/api/fights", isAuthenticated, async (req, res) => {
     try {
       const { title, fighter1, fighter2, date, promotion } = req.body;

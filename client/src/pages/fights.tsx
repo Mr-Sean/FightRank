@@ -14,9 +14,45 @@ export default function Fights() {
   const { user } = useUser();
   const [search, setSearch] = useState("");
   const [selectedFight, setSelectedFight] = useState<number | null>(null);
+  const [editingFight, setEditingFight] = useState<any>(null);
   const [newComment, setNewComment] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const handleEdit = async (fight: any) => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "Please login to edit fights",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/fights/${fight.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fight),
+      });
+
+      if (!response.ok) throw new Error("Failed to update fight");
+
+      toast({
+        title: "Success",
+        description: "Fight updated successfully!",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["/api/fights"] });
+      setEditingFight(null);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   const { data: fights } = useQuery({
     queryKey: ["/api/fights"],
@@ -150,10 +186,59 @@ export default function Fights() {
               tabIndex={0}
             >
               <CardHeader>
-                <h3 className="text-xl font-bold">{fight.title}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {fight.fighter1} vs {fight.fighter2} • {new Date(fight.date).toLocaleDateString()}
-                </p>
+                {editingFight?.id === fight.id ? (
+                  <div className="space-y-2">
+                    <Select
+                      value={editingFight.promotion}
+                      onValueChange={(value) => setEditingFight({ ...editingFight, promotion: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select promotion" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="UFC">UFC</SelectItem>
+                        <SelectItem value="PFL">PFL</SelectItem>
+                        <SelectItem value="Rizin">Rizin</SelectItem>
+                        <SelectItem value="One FC">One FC</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      value={editingFight.title}
+                      onChange={e => setEditingFight({ ...editingFight, title: e.target.value })}
+                    />
+                    <Input
+                      value={editingFight.fighter1}
+                      onChange={e => setEditingFight({ ...editingFight, fighter1: e.target.value })}
+                    />
+                    <Input
+                      value={editingFight.fighter2}
+                      onChange={e => setEditingFight({ ...editingFight, fighter2: e.target.value })}
+                    />
+                    <Input
+                      type="date"
+                      value={editingFight.date.split('T')[0]}
+                      onChange={e => setEditingFight({ ...editingFight, date: e.target.value })}
+                    />
+                    <div className="flex gap-2">
+                      <Button onClick={() => handleEdit(editingFight)}>Save</Button>
+                      <Button variant="outline" onClick={() => setEditingFight(null)}>Cancel</Button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-xl font-bold">{fight.title}</h3>
+                      {user && (
+                        <Button variant="ghost" size="sm" onClick={() => setEditingFight(fight)}>
+                          Edit
+                        </Button>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {fight.fighter1} vs {fight.fighter2} • {new Date(fight.date).toLocaleDateString()}
+                    </p>
+                  </>
+                )}
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
