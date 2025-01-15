@@ -89,7 +89,7 @@ export default function Admin() {
               onChange={e => setFight({ ...fight, fighter2: e.target.value })}
             />
             <Input
-              type="datetime-local"
+              type="date"
               value={fight.date}
               onChange={e => setFight({ ...fight, date: e.target.value })}
             />
