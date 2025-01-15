@@ -14,7 +14,7 @@ export default function Home() {
     <div 
       className="min-h-screen flex items-center justify-center bg-cover bg-center p-4"
       style={{
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1638771105709-275dadc3ddc3')`
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1600930099397-35e08e2d4d27')`
       }}
     >
       <div className="text-center">
