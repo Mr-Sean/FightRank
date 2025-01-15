@@ -164,15 +164,14 @@ export default function Fights() {
   ) ?? [];
 
   return (
-    <div className="min-h-screen relative bg-background">
-      <div
-        className="absolute inset-0 pointer-events-none opacity-20"
-        style={{
-          backgroundImage: `url('./cage-pattern.svg')`,
-          backgroundSize: "20px 20px",
-          backgroundRepeat: "repeat",
-        }}
-      />
+    <div 
+      className="min-h-screen relative"
+      style={{
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1638771105709-275dadc3ddc3')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
       <div className="relative py-8">
         <div className="container mx-auto px-4">
           <div className="mb-8 flex justify-between items-center">
