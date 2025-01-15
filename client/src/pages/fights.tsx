@@ -164,9 +164,9 @@ export default function Fights() {
   ) ?? [];
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative bg-background">
       <div
-        className="absolute inset-0 pointer-events-none opacity-10"
+        className="absolute inset-0 pointer-events-none opacity-20"
         style={{
           backgroundImage: `url('./cage-pattern.svg')`,
           backgroundSize: "20px 20px",
