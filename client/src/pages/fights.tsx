@@ -9,6 +9,13 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function Fights() {
   const { user } = useUser();
@@ -152,7 +159,7 @@ export default function Fights() {
     commentMutation.mutate({ fightId, content: newComment });
   };
 
-  const filteredFights = fights?.filter((fight: any) => 
+  const filteredFights = fights?.filter((fight: any) =>
     fight.title.toLowerCase().includes(search.toLowerCase())
   ) ?? [];
 
@@ -176,8 +183,8 @@ export default function Fights() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredFights.map((fight: any) => (
-            <Card 
-              key={fight.id} 
+            <Card
+              key={fight.id}
               className={`bg-card/50 backdrop-blur transition-all duration-200 ${
                 selectedFight === fight.id ? "ring-2 ring-primary" : ""
               }`}
@@ -204,20 +211,20 @@ export default function Fights() {
                     </Select>
                     <Input
                       value={editingFight.title}
-                      onChange={e => setEditingFight({ ...editingFight, title: e.target.value })}
+                      onChange={(e) => setEditingFight({ ...editingFight, title: e.target.value })}
                     />
                     <Input
                       value={editingFight.fighter1}
-                      onChange={e => setEditingFight({ ...editingFight, fighter1: e.target.value })}
+                      onChange={(e) => setEditingFight({ ...editingFight, fighter1: e.target.value })}
                     />
                     <Input
                       value={editingFight.fighter2}
-                      onChange={e => setEditingFight({ ...editingFight, fighter2: e.target.value })}
+                      onChange={(e) => setEditingFight({ ...editingFight, fighter2: e.target.value })}
                     />
                     <Input
                       type="date"
-                      value={editingFight.date.split('T')[0]}
-                      onChange={e => setEditingFight({ ...editingFight, date: e.target.value })}
+                      value={editingFight.date.split("T")[0]}
+                      onChange={(e) => setEditingFight({ ...editingFight, date: e.target.value })}
                     />
                     <div className="flex gap-2">
                       <Button onClick={() => handleEdit(editingFight)}>Save</Button>
@@ -235,7 +242,8 @@ export default function Fights() {
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {fight.fighter1} vs {fight.fighter2} • {new Date(fight.date).toLocaleDateString()}
+                      {fight.fighter1} vs {fight.fighter2} •{" "}
+                      {new Date(fight.date).toLocaleDateString()}
                     </p>
                   </>
                 )}
@@ -281,7 +289,7 @@ export default function Fights() {
                             onChange={(e) => setNewComment(e.target.value)}
                             className="min-h-[80px]"
                           />
-                          <Button 
+                          <Button
                             onClick={() => handleComment(fight.id)}
                             className="w-full"
                             disabled={commentMutation.isPending}
