@@ -25,7 +25,7 @@ export function registerRoutes(app: Express): Server {
   // Fights routes
   app.post("/api/fights", isAuthenticated, async (req, res) => {
     try {
-      const { title, fighter1, fighter2, date } = req.body;
+      const { title, fighter1, fighter2, date, promotion } = req.body;
       const [newFight] = await db
         .insert(fights)
         .values({
@@ -33,6 +33,7 @@ export function registerRoutes(app: Express): Server {
           fighter1,
           fighter2,
           date: new Date(date),
+          promotion,
         })
         .returning();
       res.json(newFight);
