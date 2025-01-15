@@ -34,7 +34,7 @@ export default function AuthPage() {
         title: "Success",
         description: `${action === "login" ? "Logged in" : "Registered"} successfully!`,
       });
-      setLocation("/");
+      setLocation("/fights");
     } catch (error: any) {
       toast({
         title: "Error",
