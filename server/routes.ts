@@ -115,7 +115,7 @@ export function registerRoutes(app: Express): Server {
         .from(comments)
         .leftJoin(users, eq(comments.userId, users.id))
         .where(eq(comments.fightId, fightId))
-        .orderBy(desc(comments.createdAt));
+        .orderBy(comments.createdAt);
 
       res.json(fightComments);
     } catch (error) {
