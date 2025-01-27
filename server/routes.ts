@@ -174,17 +174,30 @@ export function registerRoutes(app: Express): Server {
     try {
       const fightId = parseInt(req.params.id);
 
-      // Delete fight
-      const [deletedFight] = await db
-        .delete(fights)
-        .where(eq(fights.id, fightId))
-        .returning();
+      // Start a transaction to ensure data consistency
+      await db.transaction(async (tx) => {
+        // Delete associated ratings first
+        await tx
+          .delete(ratings)
+          .where(eq(ratings.fightId, fightId));
 
-      if (!deletedFight) {
-        return res.status(404).send("Fight not found");
-      }
+        // Delete associated comments
+        await tx
+          .delete(comments)
+          .where(eq(comments.fightId, fightId));
 
-      res.json(deletedFight);
+        // Delete the fight
+        const [deletedFight] = await tx
+          .delete(fights)
+          .where(eq(fights.id, fightId))
+          .returning();
+
+        if (!deletedFight) {
+          throw new Error("Fight not found");
+        }
+      });
+
+      res.json({ message: "Fight and associated data deleted successfully" });
     } catch (error) {
       console.error("Failed to delete fight:", error);
       res.status(500).send("Failed to delete fight");
