@@ -10,6 +10,16 @@ import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -23,6 +33,7 @@ export default function Fights() {
   const [selectedFight, setSelectedFight] = useState<number | null>(null);
   const [editingFight, setEditingFight] = useState<any>(null);
   const [newComment, setNewComment] = useState("");
+  const [fightToDelete, setFightToDelete] = useState<number | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -159,12 +170,55 @@ export default function Fights() {
     commentMutation.mutate({ fightId, content: newComment });
   };
 
+  const deleteMutation = useMutation({
+    mutationFn: async (fightId: number) => {
+      const response = await fetch(`/api/fights/${fightId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Failed to delete fight");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/fights"] });
+      toast({
+        title: "Success",
+        description: "Fight deleted successfully!",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDelete = (fightId: number) => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "Please login to delete fights",
+        variant: "destructive",
+      });
+      return;
+    }
+    setFightToDelete(fightId);
+  };
+
+  const confirmDelete = async () => {
+    if (fightToDelete) {
+      await deleteMutation.mutateAsync(fightToDelete);
+      setFightToDelete(null);
+    }
+  };
+
   const filteredFights = fights?.filter((fight: any) =>
     fight.title.toLowerCase().includes(search.toLowerCase())
   ) ?? [];
 
   return (
-    <div 
+    <div
       className="min-h-screen relative bg-cover bg-center"
       style={{
         backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1552072092-7f9b8d63efcb'), url('/cage-pattern.svg')`
@@ -254,13 +308,28 @@ export default function Fights() {
                       <div className="flex justify-between items-start">
                         <h3 className="text-xl font-bold">{fight.title}</h3>
                         {user && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setEditingFight(fight)}
-                          >
-                            Edit
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingFight(fight);
+                              }}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(fight.id);
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          </div>
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground">
@@ -329,6 +398,21 @@ export default function Fights() {
           </div>
         </div>
       </div>
+
+      <AlertDialog open={!!fightToDelete} onOpenChange={setFightToDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this fight?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the fight and all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setFightToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

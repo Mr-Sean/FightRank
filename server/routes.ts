@@ -169,6 +169,28 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Add delete route for fights
+  app.delete("/api/fights/:id", isAuthenticated, async (req, res) => {
+    try {
+      const fightId = parseInt(req.params.id);
+
+      // Delete fight
+      const [deletedFight] = await db
+        .delete(fights)
+        .where(eq(fights.id, fightId))
+        .returning();
+
+      if (!deletedFight) {
+        return res.status(404).send("Fight not found");
+      }
+
+      res.json(deletedFight);
+    } catch (error) {
+      console.error("Failed to delete fight:", error);
+      res.status(500).send("Failed to delete fight");
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
