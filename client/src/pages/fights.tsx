@@ -226,19 +226,21 @@ export default function Fights() {
     >
       <div className="relative py-8">
         <div className="container mx-auto px-4">
-          <div className="mb-8 flex justify-between items-center">
-            <h1 className="text-3xl font-bold mb-4">MMA Fights</h1>
-            {user && (
-              <Button onClick={() => (window.location.href = "/admin")} variant="outline">
-                Add New Fight
-              </Button>
-            )}
-            <Input
-              placeholder="Search fights..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="max-w-md"
-            />
+          <div className="mb-8 space-y-6">
+            <h1 className="text-3xl font-bold text-center">MMA Fights</h1>
+            <div className="flex justify-center gap-4 items-center flex-wrap">
+              {user && (
+                <Button onClick={() => (window.location.href = "/admin")} variant="outline">
+                  Add New Fight
+                </Button>
+              )}
+              <Input
+                placeholder="Search fights..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="max-w-md"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
