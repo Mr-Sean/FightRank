@@ -227,7 +227,7 @@ export default function Fights() {
       <div className="relative py-8">
         <div className="container mx-auto px-4">
           <div className="mb-8 space-y-6">
-            <h1 className="text-3xl font-bold text-center">MMA Fights</h1>
+            <h1 className="text-3xl font-bold text-center text-yellow-500">MMA Fight Rankings</h1>
             <div className="flex justify-center gap-4 items-center flex-wrap">
               {user && (
                 <Button onClick={() => (window.location.href = "/admin")} variant="outline">
