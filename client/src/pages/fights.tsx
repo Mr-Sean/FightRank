@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { StarRating } from "@/components/StarRating";
 import { Comment } from "@/components/Comment";
 import { useUser } from "@/hooks/use-user";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,6 +32,10 @@ export default function Fights() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    setNewComment("");
+  }, [selectedFight]);
+
   const { data: events, isLoading: eventsLoading } = useQuery<any[]>({
     queryKey: ["/api/events"],
   });
@@ -40,7 +44,9 @@ export default function Fights() {
     queryKey: ["/api/events", selectedEvent, "fights"],
     queryFn: async () => {
       if (!selectedEvent) return [];
-      const response = await fetch(`/api/events/${selectedEvent}/fights`);
+      const response = await fetch(`/api/events/${selectedEvent}/fights`, {
+        credentials: "include",
+      });
       if (!response.ok) throw new Error("Failed to fetch fights");
       return response.json();
     },
@@ -51,7 +57,9 @@ export default function Fights() {
     queryKey: ["/api/fights", selectedFight, "comments"],
     queryFn: async () => {
       if (!selectedFight) return [];
-      const response = await fetch(`/api/fights/${selectedFight}/comments`);
+      const response = await fetch(`/api/fights/${selectedFight}/comments`, {
+        credentials: "include",
+      });
       if (!response.ok) throw new Error("Failed to fetch comments");
       return response.json();
     },

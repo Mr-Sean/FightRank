@@ -106,7 +106,7 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/events/:id/fights", async (req, res) => {
     try {
       const eventId = parseInt(req.params.id);
-      const userId = req.user?.id;
+      const userId = req.user?.id ?? null;
 
       const fightsWithRatings = await db
         .select({
@@ -115,12 +115,14 @@ export function registerRoutes(app: Express): Server {
           fighter1: fights.fighter1,
           fighter2: fights.fighter2,
           averageRating: sql<number>`COALESCE(AVG(${ratings.rating}), 0)`,
-          userRating: sql<number | null>`
-            MAX(CASE 
-              WHEN ${ratings.userId} = ${userId} THEN ${ratings.rating}
-              ELSE NULL 
-            END)
-          `,
+          userRating: userId
+            ? sql<number | null>`
+                MAX(CASE 
+                  WHEN ${ratings.userId} = ${userId} THEN ${ratings.rating}
+                  ELSE NULL 
+                END)
+              `
+            : sql<number | null>`NULL`,
         })
         .from(fights)
         .leftJoin(ratings, eq(fights.id, ratings.fightId))
