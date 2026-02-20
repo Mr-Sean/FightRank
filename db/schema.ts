@@ -9,13 +9,19 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const fights = pgTable("fights", {
+export const events = pgTable("events", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
-  fighter1: text("fighter1").notNull(),
-  fighter2: text("fighter2").notNull(),
   promotion: text("promotion").notNull().default("UFC"),
   date: timestamp("date").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const fights = pgTable("fights", {
+  id: serial("id").primaryKey(),
+  eventId: integer("event_id").references(() => events.id).notNull(),
+  fighter1: text("fighter1").notNull(),
+  fighter2: text("fighter2").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -37,7 +43,15 @@ export const comments = pgTable("comments", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const fightsRelations = relations(fights, ({ many }) => ({
+export const eventsRelations = relations(events, ({ many }) => ({
+  fights: many(fights),
+}));
+
+export const fightsRelations = relations(fights, ({ one, many }) => ({
+  event: one(events, {
+    fields: [fights.eventId],
+    references: [events.id],
+  }),
   ratings: many(ratings),
   comments: many(comments),
 }));
@@ -69,6 +83,11 @@ export const insertUserSchema = createInsertSchema(users);
 export const selectUserSchema = createSelectSchema(users);
 export type InsertUser = typeof users.$inferInsert;
 export type SelectUser = typeof users.$inferSelect;
+
+export const insertEventSchema = createInsertSchema(events);
+export const selectEventSchema = createSelectSchema(events);
+export type InsertEvent = typeof events.$inferInsert;
+export type SelectEvent = typeof events.$inferSelect;
 
 export const insertCommentSchema = createInsertSchema(comments);
 export const selectCommentSchema = createSelectSchema(comments);
