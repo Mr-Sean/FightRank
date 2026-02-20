@@ -11,10 +11,10 @@ export default function Home() {
   };
 
   return (
-    <div 
+    <div
       className="min-h-screen flex items-center justify-center bg-cover bg-center p-4"
       style={{
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1552072092-7f9b8d63efcb'), url('/cage-pattern.svg')`
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1552072092-7f9b8d63efcb'), url('/cage-pattern.svg')`,
       }}
     >
       <div className="text-center">
@@ -23,7 +23,7 @@ export default function Home() {
           Rate and discuss your favorite MMA fights with fellow fans.
         </p>
         <Button onClick={handleJoin} size="lg">
-          Join Now
+          Join / Login
         </Button>
       </div>
     </div>

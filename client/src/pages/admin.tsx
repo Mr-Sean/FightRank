@@ -7,10 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/hooks/use-user";
 import { ArrowLeft, LogOut } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 export default function Admin() {
   const { user, logout } = useUser();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -99,7 +100,7 @@ export default function Admin() {
         </Link>
         <h1 className="text-2xl font-bold">Admin Panel</h1>
         <div className="ml-auto">
-          <Button variant="outline" onClick={() => logout()}>
+          <Button variant="outline" onClick={async () => { await logout(); setLocation("/"); }}>
             <LogOut className="w-4 h-4 mr-2" />
             Logout
           </Button>
