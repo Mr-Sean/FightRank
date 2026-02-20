@@ -19,61 +19,32 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { ArrowLeft, Calendar, Trophy } from "lucide-react";
+import { Link } from "wouter";
 
 export default function Fights() {
   const { user } = useUser();
   const [search, setSearch] = useState("");
+  const [selectedEvent, setSelectedEvent] = useState<number | null>(null);
   const [selectedFight, setSelectedFight] = useState<number | null>(null);
-  const [editingFight, setEditingFight] = useState<any>(null);
   const [newComment, setNewComment] = useState("");
   const [fightToDelete, setFightToDelete] = useState<number | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const handleEdit = async (fight: any) => {
-    if (!user) {
-      toast({
-        title: "Error",
-        description: "Please login to edit fights",
-        variant: "destructive",
-      });
-      return;
-    }
+  const { data: events, isLoading: eventsLoading } = useQuery<any[]>({
+    queryKey: ["/api/events"],
+  });
 
-    try {
-      const response = await fetch(`/api/fights/${fight.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(fight),
-      });
-
-      if (!response.ok) throw new Error("Failed to update fight");
-
-      toast({
-        title: "Success",
-        description: "Fight updated successfully!",
-      });
-
-      queryClient.invalidateQueries({ queryKey: ["/api/fights"] });
-      setEditingFight(null);
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const { data: fights } = useQuery({
-    queryKey: ["/api/fights"],
+  const { data: fights, isLoading: fightsLoading } = useQuery({
+    queryKey: ["/api/events", selectedEvent, "fights"],
+    queryFn: async () => {
+      if (!selectedEvent) return [];
+      const response = await fetch(`/api/events/${selectedEvent}/fights`);
+      if (!response.ok) throw new Error("Failed to fetch fights");
+      return response.json();
+    },
+    enabled: !!selectedEvent,
   });
 
   const { data: comments } = useQuery({
@@ -138,7 +109,7 @@ export default function Fights() {
         description: "Rating submitted successfully!",
       });
 
-      queryClient.invalidateQueries({ queryKey: ["/api/fights"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/events", selectedEvent, "fights"] });
     } catch (error: any) {
       toast({
         title: "Error",
@@ -179,7 +150,7 @@ export default function Fights() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/fights"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/events", selectedEvent, "fights"] });
       toast({
         title: "Success",
         description: "Fight deleted successfully!",
@@ -213,9 +184,12 @@ export default function Fights() {
     }
   };
 
-  const filteredFights = fights?.filter((fight: any) =>
-    fight.title.toLowerCase().includes(search.toLowerCase())
+  const filteredEvents = events?.filter((event: any) =>
+    event.title.toLowerCase().includes(search.toLowerCase()) ||
+    event.promotion.toLowerCase().includes(search.toLowerCase())
   ) ?? [];
+
+  const currentEvent = events?.find((e: any) => e.id === selectedEvent);
 
   return (
     <div
@@ -227,181 +201,194 @@ export default function Fights() {
       <div className="relative py-8">
         <div className="container mx-auto px-4">
           <div className="mb-8 space-y-6">
-            <h1 className="text-3xl font-bold text-center text-yellow-500">MMA Fight Rankings</h1>
-            <div className="flex justify-center gap-4 items-center flex-wrap">
-              {user && (
-                <Button onClick={() => (window.location.href = "/admin")} variant="outline">
-                  Add New Fight
+            <div className="flex items-center justify-between">
+              <Link href="/">
+                <Button variant="ghost" className="text-white">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Home
                 </Button>
+              </Link>
+              {user && (
+                <Link href="/admin">
+                  <Button variant="outline">
+                    Manage Events & Fights
+                  </Button>
+                </Link>
               )}
-              <Input
-                placeholder="Search fights..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="max-w-md"
-              />
             </div>
+            <h1 className="text-3xl font-bold text-center text-yellow-500">
+              {selectedEvent && currentEvent
+                ? currentEvent.title
+                : "MMA Events"}
+            </h1>
+            {selectedEvent && (
+              <div className="flex justify-center">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedEvent(null);
+                    setSelectedFight(null);
+                  }}
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Events
+                </Button>
+              </div>
+            )}
+            {!selectedEvent && (
+              <div className="flex justify-center">
+                <Input
+                  placeholder="Search events..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="max-w-md"
+                />
+              </div>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredFights.map((fight: any) => (
-              <Card
-                key={fight.id}
-                className={`bg-card/30 backdrop-blur transition-all duration-200 ${
-                  selectedFight === fight.id ? "ring-2 ring-primary" : ""
-                }`}
-                onClick={() => setSelectedFight(fight.id)}
-                role="button"
-                tabIndex={0}
-              >
-                <CardHeader>
-                  {editingFight?.id === fight.id ? (
-                    <div className="space-y-2">
-                      <Select
-                        value={editingFight.promotion}
-                        onValueChange={(value) =>
-                          setEditingFight({ ...editingFight, promotion: value })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select promotion" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="UFC">UFC</SelectItem>
-                          <SelectItem value="PFL">PFL</SelectItem>
-                          <SelectItem value="Rizin">Rizin</SelectItem>
-                          <SelectItem value="One FC">One FC</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Input
-                        value={editingFight.title}
-                        onChange={(e) =>
-                          setEditingFight({ ...editingFight, title: e.target.value })
-                        }
-                      />
-                      <Input
-                        value={editingFight.fighter1}
-                        onChange={(e) =>
-                          setEditingFight({ ...editingFight, fighter1: e.target.value })
-                        }
-                      />
-                      <Input
-                        value={editingFight.fighter2}
-                        onChange={(e) =>
-                          setEditingFight({ ...editingFight, fighter2: e.target.value })
-                        }
-                      />
-                      <Input
-                        type="date"
-                        value={editingFight.date.split("T")[0]}
-                        onChange={(e) =>
-                          setEditingFight({ ...editingFight, date: e.target.value })
-                        }
-                      />
-                      <div className="flex gap-2">
-                        <Button onClick={() => handleEdit(editingFight)}>Save</Button>
-                        <Button variant="outline" onClick={() => setEditingFight(null)}>
-                          Cancel
-                        </Button>
-                      </div>
+          {!selectedEvent ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {eventsLoading && (
+                <p className="text-center text-muted-foreground col-span-full">Loading events...</p>
+              )}
+              {filteredEvents.map((event: any) => (
+                <Card
+                  key={event.id}
+                  className="bg-card/30 backdrop-blur transition-all duration-200 cursor-pointer hover:ring-2 hover:ring-primary"
+                  onClick={() => setSelectedEvent(event.id)}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-xl font-bold">{event.title}</h3>
+                      <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">
+                        {event.promotion}
+                      </span>
                     </div>
-                  ) : (
-                    <>
-                      <div className="flex justify-between items-start">
-                        <h3 className="text-xl font-bold">{fight.title}</h3>
-                        {user && (
-                          <div className="flex gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditingFight(fight);
-                              }}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(fight.id);
-                              }}
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {fight.fighter1} vs {fight.fighter2} •{" "}
-                        {new Date(fight.date).toLocaleDateString()}
-                      </p>
-                    </>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-sm font-medium mb-1">Community Rating</p>
-                      <StarRating rating={fight.averageRating} readOnly />
+                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      {new Date(event.date).toLocaleDateString()}
+                    </p>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                      <Trophy className="w-4 h-4" />
+                      Click to view fights
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+              {!eventsLoading && filteredEvents.length === 0 && (
+                <p className="text-center text-muted-foreground col-span-full">
+                  No events found. {user ? "Create one in the admin panel!" : "Check back later!"}
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {fightsLoading && (
+                <p className="text-center text-muted-foreground col-span-full">Loading fights...</p>
+              )}
+              {fights?.map((fight: any) => (
+                <Card
+                  key={fight.id}
+                  className={`bg-card/30 backdrop-blur transition-all duration-200 ${
+                    selectedFight === fight.id ? "ring-2 ring-primary" : ""
+                  }`}
+                  onClick={() => setSelectedFight(fight.id)}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-xl font-bold">
+                        {fight.fighter1} vs {fight.fighter2}
+                      </h3>
+                      {user && (
+                        <div className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(fight.id);
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      )}
                     </div>
-                    {user && (
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
                       <div>
-                        <p className="text-sm font-medium mb-1">Your Rating</p>
-                        <StarRating
-                          rating={fight.userRating}
-                          onChange={(rating) => handleRate(fight.id, rating)}
-                        />
+                        <p className="text-sm font-medium mb-1">Community Rating</p>
+                        <StarRating rating={fight.averageRating} readOnly />
                       </div>
-                    )}
-                    {selectedFight === fight.id && (
-                      <div className="mt-6">
-                        <h4 className="font-medium mb-3">Comments</h4>
-                        <ScrollArea className="h-[200px] rounded-md border p-4">
-                          <div className="space-y-4">
-                            {comments?.map((comment: any) => (
-                              <Comment
-                                key={comment.id}
-                                username={comment.username}
-                                content={comment.content}
-                                createdAt={comment.createdAt}
+                      {user && (
+                        <div>
+                          <p className="text-sm font-medium mb-1">Your Rating</p>
+                          <StarRating
+                            rating={fight.userRating}
+                            onChange={(rating) => handleRate(fight.id, rating)}
+                          />
+                        </div>
+                      )}
+                      {selectedFight === fight.id && (
+                        <div className="mt-6">
+                          <h4 className="font-medium mb-3">Comments</h4>
+                          <ScrollArea className="h-[200px] rounded-md border p-4">
+                            <div className="space-y-4">
+                              {comments?.map((comment: any) => (
+                                <Comment
+                                  key={comment.id}
+                                  username={comment.username}
+                                  content={comment.content}
+                                  createdAt={comment.createdAt}
+                                />
+                              ))}
+                              {(!comments || comments.length === 0) && (
+                                <p className="text-sm text-muted-foreground">No comments yet</p>
+                              )}
+                            </div>
+                          </ScrollArea>
+                          {user && (
+                            <div className="mt-4 space-y-2">
+                              <Textarea
+                                placeholder="Add a comment..."
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                                className="min-h-[80px]"
                               />
-                            ))}
-                            {(!comments || comments.length === 0) && (
-                              <p className="text-sm text-muted-foreground">No comments yet</p>
-                            )}
-                          </div>
-                        </ScrollArea>
-                        {user && (
-                          <div className="mt-4 space-y-2">
-                            <Textarea
-                              placeholder="Add a comment..."
-                              value={newComment}
-                              onChange={(e) => setNewComment(e.target.value)}
-                              className="min-h-[80px]"
-                            />
-                            <Button
-                              onClick={() => handleComment(fight.id)}
-                              className="w-full"
-                              disabled={commentMutation.isPending}
-                            >
-                              Post Comment
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                              <Button
+                                onClick={() => handleComment(fight.id)}
+                                className="w-full"
+                                disabled={commentMutation.isPending}
+                              >
+                                Post Comment
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+              {!fightsLoading && (!fights || fights.length === 0) && (
+                <p className="text-center text-muted-foreground col-span-full">
+                  No fights for this event yet. {user ? "Add some in the admin panel!" : "Check back later!"}
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      <AlertDialog open={!!fightToDelete} onOpenChange={setFightToDelete}>
+      <AlertDialog open={!!fightToDelete} onOpenChange={(open) => { if (!open) setFightToDelete(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure you want to delete this fight?</AlertDialogTitle>
