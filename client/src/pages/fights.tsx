@@ -19,11 +19,11 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Calendar, Trophy } from "lucide-react";
+import { ArrowLeft, Calendar, Trophy, LogOut } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Fights() {
-  const { user } = useUser();
+  const { user, logout } = useUser();
   const [search, setSearch] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<number | null>(null);
   const [selectedFight, setSelectedFight] = useState<number | null>(null);
@@ -217,11 +217,17 @@ export default function Fights() {
                 </Button>
               </Link>
               {user && (
-                <Link href="/admin">
-                  <Button variant="outline">
-                    Manage Events & Fights
+                <div className="flex gap-2">
+                  <Link href="/admin">
+                    <Button variant="outline">
+                      Manage Events & Fights
+                    </Button>
+                  </Link>
+                  <Button variant="outline" onClick={() => logout()}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
                   </Button>
-                </Link>
+                </div>
               )}
             </div>
             <h1 className="text-3xl font-bold text-center text-yellow-500">

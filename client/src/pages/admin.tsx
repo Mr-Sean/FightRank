@@ -6,11 +6,11 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/hooks/use-user";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, LogOut } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Admin() {
-  const { user } = useUser();
+  const { user, logout } = useUser();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -98,6 +98,12 @@ export default function Admin() {
           </Button>
         </Link>
         <h1 className="text-2xl font-bold">Admin Panel</h1>
+        <div className="ml-auto">
+          <Button variant="outline" onClick={() => logout()}>
+            <LogOut className="w-4 h-4 mr-2" />
+            Logout
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
